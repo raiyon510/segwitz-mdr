@@ -1,7 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { userSchema } from "@/lib/validations";
 import { requirePermission } from "@/lib/actions-utils";
@@ -17,12 +17,19 @@ export async function getUsers() {
   });
 }
 
+const getCachedActiveUsers = unstable_cache(
+  async () =>
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, fullName: true, email: true, role: true },
+      orderBy: { fullName: "asc" },
+    }),
+  ["active-users"],
+  { tags: ["users"], revalidate: 120 }
+);
+
 export async function getActiveUsers() {
-  return prisma.user.findMany({
-    where: { isActive: true },
-    select: { id: true, fullName: true, email: true, role: true },
-    orderBy: { fullName: "asc" },
-  });
+  return getCachedActiveUsers();
 }
 
 export async function createUser(data: unknown): Promise<ActionResult<{ id: string }>> {
@@ -55,6 +62,7 @@ export async function createUser(data: unknown): Promise<ActionResult<{ id: stri
     details: `Created user ${created.email}`,
   });
 
+  revalidateTag("users", "max");
   revalidatePath("/users");
   return actionSuccess({ id: created.id });
 }
@@ -87,6 +95,7 @@ export async function updateUser(id: string, data: unknown): Promise<ActionResul
     details: `Updated user ${parsed.data.email}`,
   });
 
+  revalidateTag("users", "max");
   revalidatePath("/users");
   return actionSuccess();
 }
@@ -121,6 +130,7 @@ export async function deleteUser(id: string): Promise<ActionResult> {
     details: "Deleted user",
   });
 
+  revalidateTag("users", "max");
   revalidatePath("/users");
   return actionSuccess();
 }
@@ -143,6 +153,7 @@ export async function deactivateUser(id: string): Promise<ActionResult> {
     details: "Deactivated user",
   });
 
+  revalidateTag("users", "max");
   revalidatePath("/users");
   return actionSuccess();
 }

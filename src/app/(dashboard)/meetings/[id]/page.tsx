@@ -12,8 +12,7 @@ interface MeetingDetailPageProps {
 
 export default async function MeetingDetailPage({ params }: MeetingDetailPageProps) {
   const { id } = await params;
-  const session = await auth();
-  const meeting = await getMeeting(id);
+  const [meeting, session] = await Promise.all([getMeeting(id), auth()]);
 
   if (!meeting) notFound();
 

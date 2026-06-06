@@ -27,14 +27,37 @@ const meetingInclude = {
 export async function getMeetings() {
   await requirePermission("meetings:view");
   return prisma.meeting.findMany({
-    include: {
-      division: true,
-      department: true,
-      project: true,
-      client: true,
-      owner: true,
+    select: {
+      id: true,
+      title: true,
+      meetingType: true,
+      date: true,
+      time: true,
+      status: true,
+      division: { select: { name: true } },
+      department: { select: { name: true } },
+      owner: { select: { fullName: true } },
     },
     orderBy: { date: "desc" },
+  });
+}
+
+export async function getMeetingOptions() {
+  await requirePermission("meetings:view");
+  return prisma.meeting.findMany({
+    select: { id: true, title: true },
+    orderBy: { date: "desc" },
+  });
+}
+
+export async function getMeetingForEdit(id: string) {
+  await requirePermission("meetings:view");
+  return prisma.meeting.findUnique({
+    where: { id },
+    include: {
+      attendees: { select: { userId: true } },
+      absentees: { select: { userId: true } },
+    },
   });
 }
 
@@ -47,19 +70,23 @@ export async function getMeeting(id: string) {
 }
 
 async function syncAttendees(meetingId: string, attendeeIds: string[], absenteeIds: string[]) {
-  await prisma.meetingAttendee.deleteMany({ where: { meetingId } });
-  await prisma.meetingAbsentee.deleteMany({ where: { meetingId } });
+  await Promise.all([
+    prisma.meetingAttendee.deleteMany({ where: { meetingId } }),
+    prisma.meetingAbsentee.deleteMany({ where: { meetingId } }),
+  ]);
 
-  if (attendeeIds.length > 0) {
-    await prisma.meetingAttendee.createMany({
-      data: attendeeIds.map((userId) => ({ meetingId, userId })),
-    });
-  }
-  if (absenteeIds.length > 0) {
-    await prisma.meetingAbsentee.createMany({
-      data: absenteeIds.map((userId) => ({ meetingId, userId })),
-    });
-  }
+  await Promise.all([
+    attendeeIds.length > 0
+      ? prisma.meetingAttendee.createMany({
+          data: attendeeIds.map((userId) => ({ meetingId, userId })),
+        })
+      : Promise.resolve(),
+    absenteeIds.length > 0
+      ? prisma.meetingAbsentee.createMany({
+          data: absenteeIds.map((userId) => ({ meetingId, userId })),
+        })
+      : Promise.resolve(),
+  ]);
 }
 
 export async function createMeeting(data: unknown): Promise<ActionResult<{ id: string }>> {

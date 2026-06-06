@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { divisionSchema, departmentSchema } from "@/lib/validations";
 import { requirePermission } from "@/lib/actions-utils";
@@ -8,18 +8,36 @@ import { actionError, actionSuccess, type ActionResult } from "@/lib/action-resu
 import { createAuditLog } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/client";
 
+const getCachedDivisions = unstable_cache(
+  async () =>
+    prisma.division.findMany({
+      include: { departments: true },
+      orderBy: { name: "asc" },
+    }),
+  ["organization-divisions"],
+  { tags: ["organization"], revalidate: 300 }
+);
+
+const getCachedDepartments = unstable_cache(
+  async () =>
+    prisma.department.findMany({
+      include: { division: true },
+      orderBy: { name: "asc" },
+    }),
+  ["organization-departments"],
+  { tags: ["organization"], revalidate: 300 }
+);
+
 export async function getDivisions() {
-  return prisma.division.findMany({
-    include: { departments: true },
-    orderBy: { name: "asc" },
-  });
+  return getCachedDivisions();
 }
 
 export async function getDepartments() {
-  return prisma.department.findMany({
-    include: { division: true },
-    orderBy: { name: "asc" },
-  });
+  return getCachedDepartments();
+}
+
+function revalidateOrganizationCache() {
+  revalidateTag("organization", "max");
 }
 
 export async function createDivision(data: unknown): Promise<ActionResult<{ id: string }>> {
@@ -37,6 +55,7 @@ export async function createDivision(data: unknown): Promise<ActionResult<{ id: 
     details: `Created division ${created.name}`,
   });
 
+  revalidateOrganizationCache();
   revalidatePath("/organization");
   return actionSuccess({ id: created.id });
 }
@@ -56,6 +75,7 @@ export async function updateDivision(id: string, data: unknown): Promise<ActionR
     details: "Updated division",
   });
 
+  revalidateOrganizationCache();
   revalidatePath("/organization");
   return actionSuccess();
 }
@@ -75,6 +95,7 @@ export async function createDepartment(data: unknown): Promise<ActionResult<{ id
     details: `Created department ${created.name}`,
   });
 
+  revalidateOrganizationCache();
   revalidatePath("/organization");
   return actionSuccess({ id: created.id });
 }
@@ -94,6 +115,7 @@ export async function updateDepartment(id: string, data: unknown): Promise<Actio
     details: "Updated department",
   });
 
+  revalidateOrganizationCache();
   revalidatePath("/organization");
   return actionSuccess();
 }

@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/rbac";
 import { Role, MeetingStatus } from "@/generated/prisma/browser";
-import { getMeeting } from "@/actions/meetings";
+import { getMeetingForEdit } from "@/actions/meetings";
 import { getActiveUsers } from "@/actions/users";
 import { getDivisions, getDepartments } from "@/actions/organization";
 import { getProjects } from "@/actions/projects";
@@ -29,20 +29,19 @@ export default async function EditMeetingPage({ params }: EditMeetingPageProps) 
     redirect(`/meetings/${id}`);
   }
 
-  const meeting = await getMeeting(id);
-  if (!meeting) notFound();
-
-  if (meeting.status === MeetingStatus.FINALIZED) {
-    redirect(`/meetings/${id}`);
-  }
-
-  const [users, divisions, departments, projects, clients] = await Promise.all([
+  const [meeting, users, divisions, departments, projects, clients] = await Promise.all([
+    getMeetingForEdit(id),
     getActiveUsers(),
     getDivisions(),
     getDepartments(),
     getProjects(),
     getClients(),
   ]);
+  if (!meeting) notFound();
+
+  if (meeting.status === MeetingStatus.FINALIZED) {
+    redirect(`/meetings/${id}`);
+  }
 
   const initialData: MeetingFormData = {
     title: meeting.title,

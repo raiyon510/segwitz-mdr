@@ -44,17 +44,22 @@ export async function getDashboardStats() {
     prisma.meeting.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      include: { owner: true, department: true },
+      select: { id: true, title: true, date: true, status: true },
     }),
     prisma.decision.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      include: { owner: true, approvedBy: true },
+      select: { id: true, title: true, dateDecided: true, status: true },
     }),
     prisma.actionItem.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      include: { assignedTo: true },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        assignedTo: { select: { fullName: true } },
+      },
     }),
   ]);
 

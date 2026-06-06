@@ -15,15 +15,17 @@ export function DashboardShell({ children, userName, userRole }: DashboardShellP
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar role={userRole} mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header
           userName={userName}
           userRole={userRole}
           onMenuClick={() => setMobileOpen(true)}
         />
-        <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-6">{children}</main>
+        <main className="app-main flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-[1600px] p-5 lg:p-8">{children}</div>
+        </main>
       </div>
     </div>
   );

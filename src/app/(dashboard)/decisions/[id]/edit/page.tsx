@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getDecision } from "@/actions/decisions";
+import { getDecisionForEdit } from "@/actions/decisions";
 import { getActiveUsers } from "@/actions/users";
 import { getDivisions, getDepartments } from "@/actions/organization";
 import { getProjects } from "@/actions/projects";
 import { getClients } from "@/actions/clients";
-import { getMeetings } from "@/actions/meetings";
+import { getMeetingOptions } from "@/actions/meetings";
 import { DecisionForm } from "@/components/decisions/decision-form";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
@@ -25,13 +25,13 @@ export default async function EditDecisionPage({ params }: EditDecisionPageProps
 
   const [decision, users, divisions, departments, projects, clients, meetings] =
     await Promise.all([
-      getDecision(id),
+      getDecisionForEdit(id),
       getActiveUsers(),
       getDivisions(),
       getDepartments(),
       getProjects(),
       getClients(),
-      getMeetings(),
+      getMeetingOptions(),
     ]);
 
   if (!decision) notFound();

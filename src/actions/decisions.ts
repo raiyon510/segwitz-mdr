@@ -26,17 +26,30 @@ const decisionInclude = {
 export async function getDecisions() {
   await requirePermission("decisions:view");
   return prisma.decision.findMany({
-    include: {
-      division: true,
-      department: true,
-      project: true,
-      client: true,
-      owner: true,
-      approvedBy: true,
-      meeting: true,
+    select: {
+      id: true,
+      title: true,
+      dateDecided: true,
+      status: true,
+      owner: { select: { fullName: true } },
+      division: { select: { name: true } },
+      project: { select: { name: true } },
     },
     orderBy: { dateDecided: "desc" },
   });
+}
+
+export async function getDecisionOptions() {
+  await requirePermission("decisions:view");
+  return prisma.decision.findMany({
+    select: { id: true, title: true },
+    orderBy: { dateDecided: "desc" },
+  });
+}
+
+export async function getDecisionForEdit(id: string) {
+  await requirePermission("decisions:view");
+  return prisma.decision.findUnique({ where: { id } });
 }
 
 export async function getDecision(id: string) {

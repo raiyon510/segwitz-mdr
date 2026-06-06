@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { getDecisions } from "@/actions/decisions";
 import { DecisionsTable } from "@/components/decisions/decisions-table";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/page-header";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/rbac";
 
@@ -16,14 +17,11 @@ export default async function DecisionsPage() {
     : false;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Decisions</h1>
-          <p className="text-muted-foreground">
-            Track what was decided, approved, and its current status.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="Decisions"
+        description="Track what was decided, approved, and its current status."
+      >
         {canCreate && (
           <Button asChild>
             <Link href="/decisions/new">
@@ -32,7 +30,7 @@ export default async function DecisionsPage() {
             </Link>
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       <DecisionsTable decisions={decisions} canEdit={canEdit} />
     </div>

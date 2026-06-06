@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { getActionItems } from "@/actions/action-items";
 import { ActionsTable } from "@/components/actions/actions-table";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/page-header";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/rbac";
 
@@ -16,14 +17,11 @@ export default async function ActionsPage() {
     : false;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Action Items</h1>
-          <p className="text-muted-foreground">
-            Track follow-ups, assignments, and overdue items.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="Action Items"
+        description="Track follow-ups, assignments, and overdue items."
+      >
         {canCreate && (
           <Button asChild>
             <Link href="/actions/new">
@@ -32,7 +30,7 @@ export default async function ActionsPage() {
             </Link>
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       <ActionsTable
         actions={actions}

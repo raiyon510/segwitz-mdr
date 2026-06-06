@@ -14,7 +14,7 @@ import {
   Legend,
 } from "recharts";
 
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
+const COLORS = ["#588157", "#819171", "#28666e", "#073b4c", "#344e41", "#88a088"];
 
 interface ChartData {
   name: string;
@@ -30,7 +30,7 @@ export function MeetingsByDepartmentChart({ data }: { data: ChartData[] }) {
         <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} />
         <YAxis tick={{ fontSize: 11 }} />
         <Tooltip />
-        <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="value" fill="#588157" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

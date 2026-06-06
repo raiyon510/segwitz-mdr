@@ -6,24 +6,21 @@ import { Role } from "@/generated/prisma/browser";
 import { getMeetings } from "@/actions/meetings";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/layout/page-header";
 import { MeetingsTable } from "@/components/meetings/meetings-table";
 
 export default async function MeetingsPage() {
-  const session = await auth();
-  const meetings = await getMeetings();
+  const [session, meetings] = await Promise.all([auth(), getMeetings()]);
   const canCreate = session?.user
     ? hasPermission(session.user.role as Role, "meetings:create")
     : false;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Meetings</h1>
-          <p className="text-muted-foreground">
-            Record and track all organizational meetings.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="Meetings"
+        description="Record and track all organizational meetings."
+      >
         {canCreate && (
           <Button asChild>
             <Link href="/meetings/new">
@@ -32,7 +29,7 @@ export default async function MeetingsPage() {
             </Link>
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       {meetings.length === 0 ? (
         <EmptyState

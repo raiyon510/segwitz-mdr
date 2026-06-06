@@ -17,18 +17,21 @@ export function HeaderSearch() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="hidden md:flex items-center gap-2 max-w-sm flex-1 mx-4">
+    <form
+      onSubmit={handleSubmit}
+      className="mx-auto hidden md:flex max-w-md flex-1 items-center gap-2"
+    >
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search meetings, decisions, actions..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
+          className="h-10 rounded-full border-border/60 bg-muted/30 pl-10 shadow-sm transition-shadow focus-visible:bg-background focus-visible:shadow-md"
         />
       </div>
-      <Button type="submit" variant="secondary" size="sm">
+      <Button type="submit" size="sm" className="rounded-full px-4 shadow-sm">
         Search
       </Button>
     </form>

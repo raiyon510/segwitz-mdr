@@ -4,8 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { getActionItem } from "@/actions/action-items";
 import { getActiveUsers } from "@/actions/users";
 import { getProjects } from "@/actions/projects";
-import { getMeetings } from "@/actions/meetings";
-import { getDecisions } from "@/actions/decisions";
+import { getMeetingOptions } from "@/actions/meetings";
+import { getDecisionOptions } from "@/actions/decisions";
 import { ActionDetail } from "@/components/actions/action-detail";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
@@ -22,8 +22,8 @@ export default async function ActionPage({ params }: ActionPageProps) {
     auth(),
     getActiveUsers(),
     getProjects(),
-    getMeetings(),
-    getDecisions(),
+    getMeetingOptions(),
+    getDecisionOptions(),
   ]);
 
   if (!action) notFound();

@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import {

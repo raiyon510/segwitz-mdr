@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getActiveUsers } from "@/actions/users";
 import { getProjects } from "@/actions/projects";
-import { getMeetings } from "@/actions/meetings";
-import { getDecisions } from "@/actions/decisions";
+import { getMeetingOptions } from "@/actions/meetings";
+import { getDecisionOptions } from "@/actions/decisions";
 import { ActionForm } from "@/components/actions/action-form";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
@@ -24,8 +24,8 @@ export default async function NewActionPage({ searchParams }: NewActionPageProps
   const [users, projects, meetings, decisions] = await Promise.all([
     getActiveUsers(),
     getProjects(),
-    getMeetings(),
-    getDecisions(),
+    getMeetingOptions(),
+    getDecisionOptions(),
   ]);
 
   return (

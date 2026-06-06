@@ -13,11 +13,14 @@ import { hasPermission } from "@/lib/rbac";
 export async function getActionItems() {
   await requirePermission("actions:view");
   return prisma.actionItem.findMany({
-    include: {
-      assignedTo: true,
-      meeting: true,
-      decision: true,
-      project: true,
+    select: {
+      id: true,
+      title: true,
+      dueDate: true,
+      status: true,
+      priority: true,
+      assignedTo: { select: { id: true, fullName: true } },
+      project: { select: { name: true } },
     },
     orderBy: { dueDate: "asc" },
   });
