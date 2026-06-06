@@ -4,7 +4,7 @@ import { Role } from "@/generated/prisma/browser";
 
 export const authConfig: NextAuthConfig = {
   trustHost: true,
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
@@ -22,7 +22,7 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
-      const publicRoutes = ["/login", "/forgot-password"];
+      const publicRoutes = ["/login", "/forgot-password", "/api/health"];
       const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
       const isLoggedIn = !!auth?.user;
 

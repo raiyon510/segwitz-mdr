@@ -1,21 +1,14 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import { resolveDatabaseUrl } from "@/lib/database-url";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-function getConnectionString() {
-  const raw = process.env.DATABASE_URL;
-  if (!raw) {
-    throw new Error("DATABASE_URL environment variable is not set");
-  }
-  return raw.replace(/^["']|["']$/g, "");
-}
-
 function createPrismaClient() {
-  const connectionString = getConnectionString();
+  const connectionString = resolveDatabaseUrl();
   const isSupabase = connectionString.includes("supabase.co");
   const pool = new pg.Pool({
     connectionString,

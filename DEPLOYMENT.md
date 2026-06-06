@@ -12,6 +12,24 @@
 1. Create a PostgreSQL database on your provider
 2. Copy the connection string in format: `postgresql://user:password@host:5432/dbname`
 
+**Supabase on Vercel (important):** Supabase direct connections (`db.*.supabase.co:5432`) are **IPv6-only**. Vercel serverless functions are **IPv4-only**, so login will fail in production if you use port 5432.
+
+Use the **transaction pooler** on port **6543** with `?pgbouncer=true`:
+
+```
+postgresql://postgres:PASSWORD@db.PROJECT.supabase.co:6543/postgres?pgbouncer=true
+```
+
+The app also auto-rewrites `DATABASE_URL` to port 6543 when `VERCEL=1`. Keep port 5432 locally for migrations; use 6543 (or rely on auto-rewrite) on Vercel.
+
+After deploy, verify database connectivity:
+
+```
+curl https://your-app.vercel.app/api/health/db
+```
+
+Expected: `"ok": true` with `databaseConnected` and `adminUserExists` both true.
+
 ### 2. Supabase Storage Setup
 
 1. Create a [Supabase](https://supabase.com) project
@@ -28,7 +46,7 @@ Set these in Vercel **Settings** → **Environment Variables**:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://...` |
+| `DATABASE_URL` | PostgreSQL connection string (Supabase: use port **6543** + `?pgbouncer=true` on Vercel) | `postgresql://...@db.xxx.supabase.co:6543/postgres?pgbouncer=true` |
 | `AUTH_SECRET` | Random 32+ char secret | Generate with `openssl rand -base64 32` |
 | `AUTH_URL` | Production URL | `https://your-app.vercel.app` |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | `https://xxx.supabase.co` |
