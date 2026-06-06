@@ -116,7 +116,7 @@ export function LoginForm() {
                   Sign in
                 </h2>
                 <p className="text-sm leading-relaxed text-[#6b7c75]">
-                  Use your SegWitz Supabase account credentials.
+                  Use your SegWitz account credentials.
                 </p>
               </div>
 

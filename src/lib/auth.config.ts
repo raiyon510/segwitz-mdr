@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { Role } from "@/generated/prisma/browser";
 
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
