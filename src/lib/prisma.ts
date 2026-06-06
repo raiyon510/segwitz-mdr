@@ -6,20 +6,27 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
+function getConnectionString() {
+  const raw = process.env.DATABASE_URL;
+  if (!raw) {
     throw new Error("DATABASE_URL environment variable is not set");
   }
+  return raw.replace(/^["']|["']$/g, "");
+}
+
+function createPrismaClient() {
+  const connectionString = getConnectionString();
   const isSupabase = connectionString.includes("supabase.co");
   const pool = new pg.Pool({
     connectionString,
     ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
+    max: process.env.VERCEL ? 1 : 10,
+    idleTimeoutMillis: 20000,
+    connectionTimeoutMillis: 15000,
   });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;

@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
@@ -36,7 +35,6 @@ declare module "@auth/core/jwt" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: "credentials",
@@ -47,27 +45,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
+        try {
+          const email = (credentials.email as string).trim().toLowerCase();
+          const user = await prisma.user.findUnique({ where: { email } });
 
-        if (!user || !user.isActive) return null;
+          if (!user || !user.isActive) return null;
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
+          const isValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
 
-        if (!isValid) return null;
+          if (!isValid) return null;
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.fullName,
-          role: user.role,
-          divisionId: user.divisionId,
-          departmentId: user.departmentId,
-        };
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.fullName,
+            role: user.role,
+            divisionId: user.divisionId,
+            departmentId: user.departmentId,
+          };
+        } catch (error) {
+          console.error("[auth] Database error during login:", error);
+          return null;
+        }
       },
     }),
   ],

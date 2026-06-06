@@ -44,7 +44,11 @@ export function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      toast.error("Invalid email or password");
+      if (result.error === "Configuration") {
+        toast.error("Server misconfigured. Ensure AUTH_SECRET is set on Vercel, then redeploy.");
+      } else {
+        toast.error("Invalid email or password");
+      }
       return;
     }
 
